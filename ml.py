@@ -24,12 +24,8 @@ def dataWash(city, path: str):
     Y = Y.loc[Y.loc[:,"Location"] == city]
     Y =Y.drop(['Location'], axis=1)
     X =X.drop(['Location'], axis=1)
-
-    #print(X.info())
-    #print(Y.info())
     
     #get month
-    #int(X.loc[:,"Date"].split("/")[1])
     X["Date"] = X["Date"].apply(lambda x:int(x.split("/")[1])) 
     X = X.rename(columns={"Date":"Month"})
 
@@ -38,7 +34,6 @@ def dataWash(city, path: str):
     si = SimpleImputer(missing_values=np.nan,strategy="most_frequent")
     si.fit(X.loc[:,cate])
     X.loc[:,cate] = si.transform(X.loc[:,cate])
-    #print(X.loc[:,cate].head())
 
     #encode object data
     oe = OrdinalEncoder()
@@ -61,7 +56,7 @@ def dataWash(city, path: str):
 
 def Solution(city, Xt, Yt):
 
-    Xtrain, Xtest, Ytrain, Ytest = train_test_split(Xt,Yt,test_size=0.3)#,random_state=420)
+    Xtrain, Xtest, Ytrain, Ytest = train_test_split(Xt,Yt,test_size=0.3)
     
     Xreal, Yreal = dataWash(city, '%s.csv' % (city))
     print(Xreal)
@@ -70,22 +65,16 @@ def Solution(city, Xt, Yt):
     for i in [Xtrain,Xtest,Ytrain,Ytest]: 
         i.index = range(i.shape[0])
     
-    #print(Ytrain['RainTomorrow'].value_counts())
-    #print(Ytest['RainTomorrow'].value_counts())
-    
-    
     clf = LogisticRegression()
     clf.fit(Xtrain, Ytrain.values.ravel())
 
-    #print('finish fitting')
     result = clf.predict(Xtest)
     score = clf.score(Xtest,Ytest.values.ravel())
     recall = recall_score(Ytest.values.ravel(), result)
     auc = roc_auc_score(Ytest.values.ravel(),clf.decision_function(Xtest))
-    print("LR's testing accuracy %f, recall is %f, auc is %f" % (score,recall,auc))
+    #print("LR's testing accuracy %f, recall is %f, auc is %f" % (score,recall,auc))
     
-    
-    print(clf.predict(Xreal))
+    #print(clf.predict(Xreal))
     #print(clf.score(Xtrain, Ytrain.values.ravel()))
     '''
     #draw ROC curve
